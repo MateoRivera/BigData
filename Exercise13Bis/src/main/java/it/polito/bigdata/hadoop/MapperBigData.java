@@ -9,7 +9,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import it.polito.bigdata.hadoop.DateIncome;
+import it.polito.bigdata.hadoop.DateIncomeWritable;
 
 
 /**
@@ -19,7 +19,7 @@ class MapperBigData extends Mapper<
                     Text, // Input key type
                     Text,         // Input value type
                     NullWritable,         // Output key type
-                    DateIncome> {// Output value type
+                    DateIncomeWritable> {// Output value type
     
     ArrayList<DateIncome> topK;
     int k;
@@ -33,9 +33,7 @@ class MapperBigData extends Mapper<
             Text key,   // Input key type
             Text value,         // Input value type
             Context context) throws IOException, InterruptedException {
-        DateIncome currentDateIncome = new DateIncome();
-        currentDateIncome.setDate(key.toString());
-        currentDateIncome.setIncome(Float.parseFloat(value.toString()));
+        DateIncome currentDateIncome = new DateIncome(key.toString(), Float.parseFloat(value.toString()));
 
         for(int i=0; i < topK.size(); i++){
             if(currentDateIncome.getIncome() > topK.get(i).getIncome()){
@@ -53,7 +51,11 @@ class MapperBigData extends Mapper<
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
-        for(DateIncome e: topK)
-            context.write(NullWritable.get(), e);
+        for(DateIncome e: topK){
+            DateIncomeWritable eWritable = new DateIncomeWritable();
+            eWritable.setDate(e.getDate());
+            eWritable.setIncome(e.getIncome());
+            context.write(NullWritable.get(), eWritable);
+        }
     }
 }

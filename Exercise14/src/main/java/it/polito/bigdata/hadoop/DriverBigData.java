@@ -3,13 +3,12 @@ package it.polito.bigdata.hadoop;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -39,13 +38,12 @@ implements Tool {
     outputDir = new Path(args[2]);
     
     Configuration conf = this.getConf();
-    conf.set("k", args[3]);
 
     // Define a new job
     Job job = Job.getInstance(conf); 
 
     // Assign a name to the job
-    job.setJobName("Exercise 13Bis");
+    job.setJobName("Basic MapReduce Project - WordCount example");
     
     // Set path of the input file/folder (if it is a folder, the job reads all the files in the specified folder) for this job
     FileInputFormat.addInputPath(job, inputPath);
@@ -58,7 +56,7 @@ implements Tool {
     
     
     // Set job input format
-    job.setInputFormatClass(KeyValueTextInputFormat.class);
+    job.setInputFormatClass(TextInputFormat.class);
 
     // Set job output format
     job.setOutputFormatClass(TextOutputFormat.class);
@@ -67,15 +65,15 @@ implements Tool {
     job.setMapperClass(MapperBigData.class);
     
     // Set map output key and value classes
-    job.setMapOutputKeyClass(NullWritable.class);
-    job.setMapOutputValueClass(DateIncomeWritable.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(NullWritable.class);
     
     // Set reduce class
     job.setReducerClass(ReducerBigData.class);
         
     // Set reduce output key and value classes
-    job.setOutputKeyClass(NullWritable.class);
-    job.setOutputValueClass(DateIncomeWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(NullWritable.class);
 
     // Set number of reducers
     job.setNumReduceTasks(numberOfReducers);

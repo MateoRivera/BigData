@@ -16,9 +16,9 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 class ReducerBigData extends Reducer<
                 NullWritable,           // Input key type
-                DateIncome,    // Input value type
+                DateIncomeWritable,    // Input value type
                 NullWritable,           // Output key type
-                DateIncome> {  // Output value type
+                DateIncomeWritable> {  // Output value type
     
     int k;
     ArrayList<DateIncome> topK;
@@ -32,16 +32,16 @@ class ReducerBigData extends Reducer<
 
     protected void reduce(
         NullWritable key, // Input key type
-        Iterable<DateIncome> values, // Input value type
+        Iterable<DateIncomeWritable> values, // Input value type
         Context context) throws IOException, InterruptedException {
 
-        for(DateIncome currentDateIncome: values){
+        for(DateIncomeWritable currentDateIncome: values){
             boolean wasCurrentDateIncomeAdded = false;
 
             for(int i = 0; i < topK.size(); i++)              
 
                 if(currentDateIncome.getIncome() > topK.get(i).getIncome()){                    
-                    topK.add(i, currentDateIncome);
+                    topK.add(i, new DateIncome(currentDateIncome));
                     wasCurrentDateIncomeAdded = true;
                     
                     if(topK.size() == k+1)
@@ -52,19 +52,23 @@ class ReducerBigData extends Reducer<
 
                 
             if(topK.size() < k && !wasCurrentDateIncomeAdded)
-                topK.add(currentDateIncome);
+                topK.add(new DateIncome(currentDateIncome));
         }
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
-        for(DateIncome e: topK)
-            context.write(NullWritable.get(), e);
+        for(DateIncome e: topK){
+            DateIncomeWritable eWritable = new DateIncomeWritable();
+            eWritable.setDate(e.getDate());
+            eWritable.setIncome(e.getIncome());
+            context.write(NullWritable.get(), eWritable);
+        }
     }
 
-    private HashMap<Integer, DateIncome> insert(HashMap<Integer, DateIncome> h, int index, DateIncome e){
+    private HashMap<Integer, DateIncomeWritable> insert(HashMap<Integer, DateIncomeWritable> h, int index, DateIncomeWritable e){
 
-        DateIncome toInsert = e;
-        DateIncome aux;
+        DateIncomeWritable toInsert = e;
+        DateIncomeWritable aux;
         
         if(index != -1)
             for(int i = index; i < h.size(); i++){

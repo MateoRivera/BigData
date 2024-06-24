@@ -4,19 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class DateIncome {
-	private String date;
-	private float income;
-
-	public DateIncome(String date, float income){
-		this.date = date;
-		this.income = income;
-	}
-
-	public DateIncome(DateIncomeWritable parse){
-		this.date = parse.getDate();
-		this.income = parse.getIncome();
-	}
+public class DateIncomeWritable implements 
+org.apache.hadoop.io.Writable {
+	private String date = "";
+	private float income = 0;
 
 	public String getDate() {
 		return date;
@@ -32,6 +23,18 @@ public class DateIncome {
 
 	public void setIncome(float income) {
 		this.income = income;
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		date = in.readUTF();
+		income = in.readFloat();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		out.writeUTF(date);
+		out.writeFloat(income);
 	}
 
 	public String toString() {
