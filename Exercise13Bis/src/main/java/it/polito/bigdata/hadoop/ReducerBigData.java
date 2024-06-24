@@ -41,7 +41,7 @@ class ReducerBigData extends Reducer<
             for(int i = 0; i < topK.size(); i++)              
 
                 if(currentDateIncome.getIncome() > topK.get(i).getIncome()){                    
-                    insert(topK, i, currentDateIncome);
+                    topK = insert(topK, i, currentDateIncome);
                     wasCurrentDateIncomeAdded = true;
                     
                     if(topK.size() == k+1){
@@ -52,7 +52,7 @@ class ReducerBigData extends Reducer<
 
                 
             if(topK.size() < k && !wasCurrentDateIncomeAdded)
-                insert(topK, -1, currentDateIncome);
+                topK = insert(topK, -1, currentDateIncome);
         }
     }
 
@@ -61,7 +61,7 @@ class ReducerBigData extends Reducer<
             context.write(NullWritable.get(), e);
     }
 
-    private void insert(HashMap<Integer, DateIncome> h, int index, DateIncome e){
+    private HashMap<Integer, DateIncome> insert(HashMap<Integer, DateIncome> h, int index, DateIncome e){
 
         DateIncome toInsert = e;
         DateIncome aux;
@@ -75,5 +75,7 @@ class ReducerBigData extends Reducer<
             }
 
         h.put(h.size(), toInsert);
+
+        return h;
     }
 }
