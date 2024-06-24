@@ -21,13 +21,13 @@ class ReducerBigData extends Reducer<
                 DateIncome> {  // Output value type
     
     int k;
-    HashMap<Integer, DateIncome> topK;
+    ArrayList<DateIncome> topK;
     
                 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         k = Integer.parseInt(context.getConfiguration().get("k"));
-        topK = new HashMap<Integer, DateIncome>();
+        topK = new ArrayList<DateIncome>();
     }
 
     protected void reduce(
@@ -41,23 +41,23 @@ class ReducerBigData extends Reducer<
             for(int i = 0; i < topK.size(); i++)              
 
                 if(currentDateIncome.getIncome() > topK.get(i).getIncome()){                    
-                    topK = insert(topK, i, currentDateIncome);
+                    topK.add(i, currentDateIncome);
                     wasCurrentDateIncomeAdded = true;
                     
-                    if(topK.size() == k+1){
+                    if(topK.size() == k+1)
                         topK.remove(k);
-                    }
+                    
                     break;
                 }
 
                 
             if(topK.size() < k && !wasCurrentDateIncomeAdded)
-                topK = insert(topK, -1, currentDateIncome);
+                topK.add(currentDateIncome);
         }
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
-        for(DateIncome e: topK.values())
+        for(DateIncome e: topK)
             context.write(NullWritable.get(), e);
     }
 
