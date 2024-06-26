@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -24,17 +25,18 @@ implements Tool {
   public int run(String[] args) throws Exception {
 
     Path inputPath;
+    Path cachePath;
     Path outputDir;
-    int numberOfReducers;
-	int exitCode;  
+	  int exitCode;  
 	
 	// Parse the parameters
-	// Number of instances of the reducer class 
-    numberOfReducers = Integer.parseInt(args[0]);
     // Folder containing the input data
-    inputPath = new Path(args[1]);
+    inputPath = new Path(args[0]);
+    //File to cache
+    cachePath = new Path(args[1]);
     // Output folder
     outputDir = new Path(args[2]);
+
     
     Configuration conf = this.getConf();
 
@@ -43,6 +45,8 @@ implements Tool {
 
     // Assign a name to the job
     job.setJobName("Basic MapReduce Project - WordCount example");
+
+    job.addCacheFile(cachePath.toUri());
     
     // Set path of the input file/folder (if it is a folder, the job reads all the files in the specified folder) for this job
     FileInputFormat.addInputPath(job, inputPath);
@@ -65,17 +69,10 @@ implements Tool {
     
     // Set map output key and value classes
     job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(IntWritable.class);
-    
-    // Set reduce class
-    job.setReducerClass(ReducerBigData.class);
-        
-    // Set reduce output key and value classes
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
+    job.setMapOutputValueClass(NullWritable.class);
 
     // Set number of reducers
-    job.setNumReduceTasks(numberOfReducers);
+    job.setNumReduceTasks(0);
     
     
     // Execute the job and wait for completion

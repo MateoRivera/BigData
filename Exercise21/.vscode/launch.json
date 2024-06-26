@@ -17,8 +17,8 @@
             "mainClass": "it.polito.bigdata.hadoop.DriverBigData",
             "projectName": "MapReduceProject",
             "args": [
-                "2",
                 "example_data",
+                "cache/stopWords.txt",
                 "ex_out",
                 "test_prefix"
             ]
